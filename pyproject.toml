@@ -4,4 +4,17 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "arize-phoenix>=12.16.0",
+    "chainlit>=2.9.0",
+    "fastapi>=0.121.3",
+    "fastembed>=0.7.3",
+    "langchain>=1.0.8",
+    "langchain-openai>=1.0.3",
+    "langgraph>=1.0.3",
+    "openinference-instrumentation-langchain>=0.1.55",
+    "pydantic>=2.12.4",
+    "python-dotenv>=1.2.1",
+    "qdrant-client>=1.16.0",
+    "ragas>=0.3.9",
+]
