@@ -1,0 +1,26 @@
+# --- Python & UV ---
+__pycache__/
+*.py[cod]
+.venv/
+.uv/
+
+# --- Environment Secrets (NEVER COMMIT THESE) ---
+.env
+.env.local
+
+# --- Data & Media (MLOps Standard) ---
+# We don't commit PDFs or Vector DB binary files to Git
+data/
+!data/.gitkeep
+qdrant_data/
+
+# --- IDEs & OS ---
+.DS_Store
+.vscode/
+.idea/
+
+# --- Testing & Logs ---
+.pytest_cache/
+.ruff_cache/
+coverage.xml
+*.log
