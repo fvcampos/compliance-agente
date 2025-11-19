@@ -1,0 +1,20 @@
+services:
+  # 1. Vector Database (Long-Term Memory)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: compliance_qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+
+  # 2. Observability Server (The "Trace" Dashboard)
+  phoenix:
+    image: arizephoenix/phoenix:latest
+    container_name: compliance_phoenix
+    ports:
+      - "6006:6006" # The UI
+      - "4317:4317" # OTLP gRPC Receiver (Logs go here)
+    environment:
+      - PHOENIX_PORT=6006
+      - PHOENIX_GRPC_PORT=4317
