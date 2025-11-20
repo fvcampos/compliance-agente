@@ -6,11 +6,12 @@ import logging
 import os
 from typing import Dict, Any
 
+from pydantic import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.pydantic_v1 import BaseModel, Field
 
 from src.core.state import AgentState
+from src.utils.settings import settings
 from src.agents.tools import retrieve_documents
 
 logging.basicConfig(
@@ -22,10 +23,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-flash",
+    model="gemini-2.5-flash-lite",
     temperature=0,
     max_retries=2,
-    api_key=os.getenv("GOOGLE_API_KEY")
+    google_api_key=settings.GOOGLE_API_KEY
 )
 
 class GradeDocuments(BaseModel):
