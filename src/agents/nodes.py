@@ -3,8 +3,7 @@ Defines the nodes (workers) for the LangGraph agent.
 """
 
 import logging
-import os
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 
 from pydantic import BaseModel, Field
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -38,8 +37,8 @@ class GradeDocuments(BaseModel):
 
 def retrieve(state: AgentState) -> Dict[str, Any]:
     """Node 1: The Researcher"""
-    print("--- NODE: RETRIEVE ---")
-    question = state["question"]
+    logging.info("--- NODE: RETRIEVE ---")
+    question: str = state["question"]
 
     # Pass arguments as a dictionary!
     documents_str: str = retrieve_documents.invoke({
@@ -52,7 +51,7 @@ def retrieve(state: AgentState) -> Dict[str, Any]:
 
 def grade_documents(state: AgentState) -> Dict[str, Any]:
     """Node 2: The Compliance Officer (Gemini)"""
-    print("--- NODE: GRADE DOCUMENTS ---")
+    logging.info("--- NODE: GRADE DOCUMENTS ---")
     question: str = state["question"]
     documents: str = state["documents"][0]
 
@@ -80,13 +79,13 @@ def grade_documents(state: AgentState) -> Dict[str, Any]:
          "document": documents}
     )
 
-    print(f"--- JUDGE DECISION: {score.binary_score} ---")
+    logging.info(f"--- JUDGE DECISION: {score.binary_score} ---")
     return {"question": question, "documents": state["documents"]}
 
 
 def generate(state: AgentState) -> Dict[str, Any]:
     """Node 3: The Writer (Gemini)"""
-    print("--- NODE: GENERATE ---")
+    logging.info("--- NODE: GENERATE ---")
     question: str = state["question"]
     documents: str = state["documents"][0]
 
@@ -109,3 +108,49 @@ def generate(state: AgentState) -> Dict[str, Any]:
     )
 
     return {"generation": response.content}
+
+
+def rewrite_query(state: AgentState) -> Dict[str, Any]:
+    '''
+
+    This node is triggered when the retrieved documents are graded as irrelevant
+    to the user's question. It utilizes an LLM to transform the original
+    question into a more effective search query optimized for vector retrieval,
+    aiming to capture the semantic meaning better than the initial attempt.
+    Args:
+        state (AgentState): The current state of the agent graph, containing 
+                            the original 'question' and the current
+                            'retry_count'.
+    Returns:
+        Dict[str, Any]: A dictionary containing:
+            - "question" (str): The newly rewritten, optimized question string.
+            - "retry_count" (int): The incremented retry counter to track the
+            number of refinement attempts.
+    
+    '''
+    
+    logging.info("--- NODE: REWRITE QUERY ---")
+    question: str = state["question"]
+
+    # A specific prompt to act as a "Translator"
+    # "Look at the initial question and formulate an improved question 
+    # that is more likely to retrieve relevant facts."
+    msg: List[Tuple[str, str]] = [
+        ("system", "You are a query rewriter that converts an input question "
+                   "to a better version that is optimized for vector "
+                   "retrieval. Look at the initial and formulate an improved "
+                   "question."),
+        ("human", f"Initial Question: {question} \n Formulate an improved "
+                  "question."),
+    ]
+
+    better_question = llm.invoke(msg)
+    
+    logging.info(f"--- REWRITTEN QUERY: {better_question.content} ---")
+    
+    # Update the state with the NEW question
+    # Also increment the retry counter to prevent infinite loops later
+    return {
+        "question": better_question.content,
+        "retry_count": state.get("retry_count", 0) + 1
+    }
