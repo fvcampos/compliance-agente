@@ -80,7 +80,11 @@ def grade_documents(state: AgentState) -> Dict[str, Any]:
     )
 
     logging.info(f"--- JUDGE DECISION: {score.binary_score} ---")
-    return {"question": question, "documents": state["documents"]}
+    return {
+        "question": question,
+        "documents": state["documents"],
+        "grade": score.binary_score
+    }
 
 
 def generate(state: AgentState) -> Dict[str, Any]:
