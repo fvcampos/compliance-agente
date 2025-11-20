@@ -140,21 +140,23 @@ def rewrite_query(state: AgentState) -> Dict[str, Any]:
     # "Look at the initial question and formulate an improved question 
     # that is more likely to retrieve relevant facts."
     msg: List[Tuple[str, str]] = [
-        ("system", "You are a query rewriter that converts an input question "
-                   "to a better version that is optimized for vector "
-                   "retrieval. Look at the initial and formulate an improved "
-                   "question."),
+        ("system", """You are a query rewriter that converts an input question
+        to a better version that is optimized for vector retrieval.
+        Look at the initial and formulate an improved question.
+        IMPORTANT: Output ONLY the improved question string. Do not output
+        'Improved Question:' or any preamble."""),
         ("human", f"Initial Question: {question} \n Formulate an improved "
                   "question."),
     ]
 
-    better_question = llm.invoke(msg)
-    
-    logging.info(f"--- REWRITTEN QUERY: {better_question.content} ---")
+    better_question: ChatGoogleGenerativeAI = llm.invoke(msg)
+    clean_question: str = better_question.content.replace(
+        "Improved Question:", "").strip()
+    logging.info(f"--- REWRITTEN QUERY: {clean_question} ---")
     
     # Update the state with the NEW question
     # Also increment the retry counter to prevent infinite loops later
     return {
-        "question": better_question.content,
+        "question": clean_question,
         "retry_count": state.get("retry_count", 0) + 1
     }
