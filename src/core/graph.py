@@ -79,7 +79,7 @@ workflow.add_edge(START, "retrieve")
 workflow.add_edge("retrieve", "grade_documents")
 
 # Conditional Edge: Decide whether to Generate or Rewrite Query
-workflow.add_conditional_edge(
+workflow.add_conditional_edges(
     "grade_documents",
     decide_to_generate,
     {
