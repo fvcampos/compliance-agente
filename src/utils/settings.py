@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     QDRANT_PORT: int = 6333
     QDRANT_COLLECTION_NAME: str = "compliance_docs"
 
-    OPENAI_API_KEY: str | None = None
+    GOOGLE_API_KEY: str | None = None
 
     @property
     def QDRANT_URL(self) -> str:
