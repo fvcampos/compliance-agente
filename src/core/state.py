@@ -16,8 +16,11 @@ class AgentState(TypedDict):
                                vector database.
         retry_count (int): A counter to track how many times the agent has
                            tried to self-correct (to prevent infinite loops).
+        grade (str): The relevance grade assigned to the retrieved documents
+                     ("relevant" or "irrelevant").
     """
     question: str
     generation: str
     documents: List[str]
     retry_count: int
+    grade: str
