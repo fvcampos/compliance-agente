@@ -2,6 +2,7 @@
 Defines the nodes (workers) for the LangGraph agent.
 """
 
+import time
 import logging
 from typing import Dict, Any, List, Tuple
 
@@ -114,7 +115,8 @@ def generate(state: AgentState) -> Dict[str, Any]:
     return {"generation": response.content}
 
 
-def rewrite_query(state: AgentState) -> Dict[str, Any]:
+def rewrite_query(state: AgentState,
+                  seconds_to_sleep: int = 10) -> Dict[str, Any]:
     '''
 
     This node is triggered when the retrieved documents are graded as irrelevant
@@ -125,6 +127,8 @@ def rewrite_query(state: AgentState) -> Dict[str, Any]:
         state (AgentState): The current state of the agent graph, containing 
                             the original 'question' and the current
                             'retry_count'.
+        seconds_to_sleep (int): Number of seconds to sleep to avoid rate 
+                                limits when calling the LLM
     Returns:
         Dict[str, Any]: A dictionary containing:
             - "question" (str): The newly rewritten, optimized question string.
@@ -134,6 +138,10 @@ def rewrite_query(state: AgentState) -> Dict[str, Any]:
     '''
     
     logging.info("--- NODE: REWRITE QUERY ---")
+
+    logging.info("Sleeping for a while to not hit rate limits")
+    time.sleep(seconds_to_sleep)
+
     question: str = state["question"]
 
     # A specific prompt to act as a "Translator"
