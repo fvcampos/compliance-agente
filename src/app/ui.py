@@ -3,9 +3,22 @@ The Chat Interface using Chainlit.
 Run this with: uv run chainlit run src/app/ui.py -w
 """
 
-import chainlit as cl
-from src.core.graph import app  # Import your compiled graph logic
+import os
 
+import chainlit as cl
+from src.core.graph import app
+from phoenix.otel import register
+from openinference.instrumentation.langchain import LangChainInstrumentor
+
+collector_endpoint = os.getenv(
+    "PHOENIX_COLLECTOR_ENDPOINT", "http://127.0.0.1:6006/v1/traces")
+
+tracer_provider = register(
+    project_name="compliance-agent", 
+    endpoint=collector_endpoint
+)
+
+LangChainInstrumentor().instrument(tracer_provider=tracer_provider)
 
 @cl.on_chat_start
 async def start():
